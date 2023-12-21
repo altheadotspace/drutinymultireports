@@ -11,7 +11,7 @@ read -p "What is the site name? " sitename
 # Ask the user the environment
 read -p "What is the environment? " environment
 
-read -p "Please enter your choice (1=Drupal 8 or later site, 2=Drupal 7: " drupal
+read -p "To run a site review please enter your choice regarding the Drupal version(1=Drupal 8 or later site, 2=Drupal 7: " drupal
 
 while [[ $drupal != 1 && $drupal != 2 ]]; do
   echo "Invalid selection "
@@ -32,7 +32,7 @@ while [[ $acquiadomain != 1 && $acquiadomain != 2 ]]; do
   read -p "Please enter your choice (1=Yes, 2=No): " acquiadomain
 done
 
-read -p "Please enter your format choice (1=HTML, 2=CSV table report, 3=Both): " format
+read -p "Please enter the format of the site review (1=HTML, 2=CSV table report, 3=Both): " format
 
 while [[ $format != 1 && $format != 2 && $format != 3 ]]; do
   echo "Invalid selection. Please choose 1 or 2."
@@ -49,7 +49,7 @@ if [ "$environment" == "" ] ; then
   exit
 fi
 
-read -p "Please enter how many sites do you want to create a report (0=ALL): " limitsites
+read -p "Please enter how many sites do you want to create the report (0=ALL): " limitsites
 
 while ! [[ -n "$limitsites" ]] && ! [[ "$limitsites" =~ ^[0-9]+$ ]]; do
     echo "Invalid selection. Please enter 0 if you want to create report for all sites or the number of sites you want to."
