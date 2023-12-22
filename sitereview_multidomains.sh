@@ -11,34 +11,6 @@ read -p "What is the site name? " sitename
 # Ask the user the environment
 read -p "What is the environment? " environment
 
-read -p "To run a site review please enter your choice regarding the Drupal version(1=Drupal 8 or later site, 2=Drupal 7: " drupal
-
-while [[ $drupal != 1 && $drupal != 2 ]]; do
-  echo "Invalid selection "
-  read -p "Please enter your choice (1=Drupal 8 or later site, 2=Drupal 7: " drupal
-done
-
-read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW, or 3=WITHOUT WWW): " selection
-
-while [[ $selection != 1 && $selection != 2 && $selection != 3 ]]; do
-  echo "Invalid selection. Please choose 1, 2, or 3."
-  read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW, or 3=WITHOUT WWW): " selection
-done
-
-read -p "Exclude the Acquia domain (1=Yes, 2=No): " acquiadomain
-
-while [[ $acquiadomain != 1 && $acquiadomain != 2 ]]; do
-  echo "Invalid selection. Please choose 1, 2, or 3."
-  read -p "Please enter your choice (1=Yes, 2=No): " acquiadomain
-done
-
-read -p "Please enter the format of the site review (1=HTML, 2=CSV table report, 3=Both): " format
-
-while [[ $format != 1 && $format != 2 && $format != 3 ]]; do
-  echo "Invalid selection. Please choose 1 or 2."
-  read -p "Please enter your format choice (1=HTML, 2=CSV, 3=Both): " format
-done
-
 if [ "$sitename" == "" ] ; then
   echo 'missing the site name argument'
   exit
@@ -49,12 +21,53 @@ if [ "$environment" == "" ] ; then
   exit
 fi
 
-read -p "Please enter how many sites do you want to create the report (0=ALL): " limitsites
+  read -p "To run a site review please enter your choice regarding the Drupal version(1=Drupal 8 or later site, 2=Drupal 7: " drupal
 
-while ! [[ -n "$limitsites" ]] && ! [[ "$limitsites" =~ ^[0-9]+$ ]]; do
-    echo "Invalid selection. Please enter 0 if you want to create report for all sites or the number of sites you want to."
-    read -p "Please enter how many sites do you want to create a report (0=ALL): " limitsites
+  while [[ $drupal != 1 && $drupal != 2 ]]; do
+    echo "Invalid selection "
+    read -p "Please enter your choice (1=Drupal 8 or later site, 2=Drupal 7: " drupal
+  done
+
+
+# Ask the user if want to run site review
+read -p "Do you want to run a site review, Please enter your choice (1=Yes, 2=No) " sitereviewr
+
+while [[ $sitereviewr != 1 && $sitereviewr != 2 ]]; do
+  echo "Invalid selection "
+  read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " sitereviewr
 done
+
+
+if [ "$sitereviewr" == 1 ] ; then
+
+  read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW, or 3=WITHOUT WWW): " selection
+
+  while [[ $selection != 1 && $selection != 2 && $selection != 3 ]]; do
+    echo "Invalid selection. Please choose 1, 2, or 3."
+    read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW, or 3=WITHOUT WWW): " selection
+  done
+
+  read -p "Exclude the Acquia domain (1=Yes, 2=No): " acquiadomain
+
+  while [[ $acquiadomain != 1 && $acquiadomain != 2 ]]; do
+    echo "Invalid selection. Please choose 1, 2, or 3."
+    read -p "Please enter your choice (1=Yes, 2=No): " acquiadomain
+  done
+
+  read -p "Please enter the format of the site review (1=HTML, 2=CSV table report, 3=Both): " format
+
+  while [[ $format != 1 && $format != 2 && $format != 3 ]]; do
+    echo "Invalid selection. Please choose 1 or 2."
+    read -p "Please enter your format choice (1=HTML, 2=CSV, 3=Both): " format
+  done
+
+  read -p "Please enter how many sites do you want to create the report (0=ALL): " limitsites
+
+  while ! [[ -n "$limitsites" ]] && ! [[ "$limitsites" =~ ^[0-9]+$ ]]; do
+      echo "Invalid selection. Please enter 0 if you want to create report for all sites or the number of sites you want to."
+      read -p "Please enter how many sites do you want to create a report (0=ALL): " limitsites
+  done
+fi
 
 echo " "
 
@@ -266,8 +279,6 @@ if [ "$appanalysis" == 1 ] ; then
     drutinycs profile:run app_analysis aht:@$sitename.$environment -f html --no-interaction --reporting-period-start="-7 days"
     cd ..
 fi
-
-
 
 COUNTREPORT=1
 
