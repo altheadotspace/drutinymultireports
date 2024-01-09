@@ -21,7 +21,7 @@ if [ "$environment" == "" ] ; then
   exit
 fi
 
-  read -p "To run a site review please enter your choice regarding the Drupal version(1=Drupal 8 or later site, 2=Drupal 7: " drupal
+  read -p "To run a report please enter the Drupal version --> (1=Drupal 8 or later site, 2=Drupal 7) : " drupal
 
   while [[ $drupal != 1 && $drupal != 2 ]]; do
     echo "Invalid selection "
@@ -313,7 +313,13 @@ SITEREVIEWMAPPING="site_review_mapping.csv"
 SITEREVIEWMAPPINGTEMP="site_review_mapping_temp.txt"
 
 drutinycs profile:info $SITEREVIEWVERSION > $SITEREVIEWMAPPINGTEMP
-cat $SITEREVIEWMAPPINGTEMP  | sed '/Acquia Cloud Site Review/,/Policies/d' | sed '1,6d' | sed -e :a -e '$d;N;2,3ba' -e 'P;D' | sed 's/    */|/g' | awk -F '|' '{print $1}' | sed 's/^..//' >> $SITEREVIEWMAPPING
+
+if [ "$drupal" == 2 ] ; then
+  cat $SITEREVIEWMAPPINGTEMP  | sed '/Drupal 7 Site Review/,/Policies/d' | sed '1,6d' | sed -e :a -e '$d;N;2,3ba' -e 'P;D' | sed 's/    */|/g' | awk -F '|' '{print $1}' | sed 's/^..//' >> $SITEREVIEWMAPPING
+else
+  cat $SITEREVIEWMAPPINGTEMP  | sed '/Acquia Cloud Site Review/,/Policies/d' | sed '1,6d' | sed -e :a -e '$d;N;2,3ba' -e 'P;D' | sed 's/    */|/g' | awk -F '|' '{print $1}' | sed 's/^..//' >> $SITEREVIEWMAPPING
+fi
+
 rm $SITEREVIEWMAPPINGTEMP
 
 # generating the csv report
@@ -348,6 +354,8 @@ if [[ $format -eq 2 || $format -eq 3 ]] ; then
         drutinycs profile:run $SITEREVIEWVERSION --no-interaction aht:@$sitename.$environment --uri=$site -f terminal > $TEMP
 
         cat $TEMP | sed '/## Issues.*$/,$d' | sed '/Purpose/,/Issue Summary/d' | sed '/^-/d' | sed 's/[[:blank:]]\{2,\}//g' | sed -e 's/|/;/g' -e 's/ ;/;/g' -e 's/; /;/g' | awk -F ';' '{print $1";"$3}' | sed '1d; 2d' | sed -e :a -e '$d;N;1,3ba' -e 'P;D' > $REPORTCSVTMP
+
+
 
         MAPPINCOUNT=2
 
