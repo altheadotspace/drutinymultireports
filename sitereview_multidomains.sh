@@ -40,19 +40,30 @@ done
 
 if [ "$sitereviewr" == 1 ] ; then
 
-  read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW, or 3=WITHOUT WWW): " selection
+  echo "To run site review you need to provide the domains, for that we can use the domain:list AHT command"
+  echo "Which kind of domain you want to run the site review?"
+  read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW, 3=WITHOUT WWW, or 4= If you want to provide the path with the simple list): " selection
 
-  while [[ $selection != 1 && $selection != 2 && $selection != 3 ]]; do
+  while [[ $selection != 1 && $selection != 2 && $selection != 3 && $selection != 4 ]]; do
     echo "Invalid selection. Please choose 1, 2, or 3."
-    read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW, or 3=WITHOUT WWW): " selection
+    read -p "Please enter your choice (1=ALL domains, 2=ONLY WWW,  3=WITHOUT WWW, or 4= If you want to provide the path with the simple list): " selection
   done
 
-  read -p "Exclude the Acquia domain (1=Yes, 2=No): " acquiadomain
+  if [ "$selection" != 4 ] ; then
+   read -p "Exclude the Acquia domain (1=Yes, 2=No): " acquiadomain
+   while [[ $acquiadomain != 1 && $acquiadomain != 2 ]]; do
+      echo "Invalid selection. Please choose 1, 2, or 3."
+      read -p "Please enter your choice (1=Yes, 2=No): " acquiadomain
+    done
+  fi
 
-  while [[ $acquiadomain != 1 && $acquiadomain != 2 ]]; do
-    echo "Invalid selection. Please choose 1, 2, or 3."
-    read -p "Please enter your choice (1=Yes, 2=No): " acquiadomain
-  done
+  if [ "$selection" == 4 ] ; then
+    read -p "Please indicate the full path to the .txt file containing the domain list : " pathdomainlist
+    while [[ ! -f $pathdomainlist ]]; do
+      echo "The file does not exist yet. Try again"
+      read -p "Please indicate a valid full path to the .txt file containing the domain list : " pathdomainlist
+    done
+  fi
 
   read -p "Please enter the format of the site review (1=HTML, 2=CSV table report, 3=Both): " format
 
@@ -70,43 +81,59 @@ if [ "$sitereviewr" == 1 ] ; then
 fi
 
 echo " "
-
-echo "The reports below cover the period of the past 7 days"
-
 echo " "
 
-read -p "Do you also want to run a load analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " loadanalysis
+read -p "Do you also want to run other reports like load analysis, app health, ecc? Please enter your choice (1=Yes, 2=No): " otherreports
 
-while [[ $loadanalysis != 1 && $loadanalysis != 2 ]]; do
+while [[ $otherreports != 1 && $otherreports != 2 ]]; do
   echo "Invalid selection "
-  read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " loadanalysis
+  read -p "Please enter your choice (1=Yes, 2=No): " otherreports
 done
 
-read -p "Do you also want to run a health analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " healthanalysis
+if [ "$otherreports" == 1 ] ; then
 
-while [[ $healthanalysis != 1 && $healthanalysis != 2 ]]; do
-  echo "Invalid selection "
-  read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " loadanalysis
-done
+  read -p "The follow reports can be run for a period of time, please select the period tha you want the reports: (1= On day, 2=One week, 3=Two weeks): " period
 
-read -p "Do you also want to run a traffic analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " trafficanalysis
+  while [[ $period != 1 && $period != 2 && $period != 3 ]]; do
+    echo "Invalid selection "
+    read -p "Please enter your choice (1= On day, 2=One week, 3=Two weeks): " period
+  done
 
-while [[ $trafficanalysis != 1 && $trafficanalysis != 2 ]]; do
-  echo "Invalid selection "
-  read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " trafficanalysis
-done
+  read -p "Do you also want to run a load analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " loadanalysis
 
-read -p "Do you also want to run a app analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " appanalysis
+  while [[ $loadanalysis != 1 && $loadanalysis != 2 ]]; do
+    echo "Invalid selection "
+    read -p "Please enter your choice (1=Yes, 2=No): " loadanalysis
+  done
 
-while [[ $appanalysis != 1 && $appanalysis != 2 ]]; do
-  echo "Invalid selection "
-  read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " appanalysis
-done
+  read -p "Do you also want to run a health analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " healthanalysis
+
+  while [[ $healthanalysis != 1 && $healthanalysis != 2 ]]; do
+    echo "Invalid selection "
+    read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " loadanalysis
+  done
+
+  read -p "Do you also want to run a traffic analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " trafficanalysis
+
+  while [[ $trafficanalysis != 1 && $trafficanalysis != 2 ]]; do
+    echo "Invalid selection "
+    read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " trafficanalysis
+  done
+
+  read -p "Do you also want to run a app analysis report for this docroot? Please enter your choice (1=Yes, 2=No): " appanalysis
+
+  while [[ $appanalysis != 1 && $appanalysis != 2 ]]; do
+    echo "Invalid selection "
+    read -p "Please enter your choice  Please enter your choice (1=Yes, 2=No): " appanalysis
+  done
+
+fi
+
 
 # Display a message to let the user know that the script start the process
 echo "--------    Running reports for, $sitename.$environment     --------------"
 
-NAMEDETAIL="$sitename$environment-$(date +%Y%m%d%H%M%S)"
+NAMEDETAIL="$sitename$environment-$(date +%Y%m%d-%H%M%S)"
 
 # Create folder to storage the reports
 if [ ! -d "$sitename" ]; then
@@ -117,10 +144,12 @@ cd $sitename
 
 mkdir $NAMEDETAIL
 cd $NAMEDETAIL
-
-# getting the domain list
-DOMAINLISTTEMP=domainlisttemp.txt
 DOMAINLIST=domainlist.txt
+
+if [ "$selection" != 4 ] ; then
+  # getting the domain list
+  DOMAINLISTTEMP=domainlisttemp.txt
+fi
 
 if [ "$selection" == 1 ] ; then
     aht @$sitename.$environment do:li  > $DOMAINLISTTEMP
@@ -134,7 +163,10 @@ if [ "$selection" == 3 ] ; then
     aht @$sitename.$environment do:li | grep -v 'www\.' > $DOMAINLISTTEMP
 fi
 
-sed -i bak 's/[[:space:]]//g' $DOMAINLISTTEMP 
+if [ "$selection" == 4 ] ; then
+  # getting the domain list provided by the user
+  cp $pathdomainlist $DOMAINLIST
+fi
 
 function validate_domains {
   local domains=$1
@@ -199,10 +231,14 @@ function validate_domains {
   done
 }
 
-validate_domains $DOMAINLISTTEMP $DOMAINLIST
+if [ "$selection" != 4 ] ; then
+  #Cleaning the list
+  sed -i bak 's/[[:space:]]//g' $DOMAINLISTTEMP 
+  validate_domains $DOMAINLISTTEMP $DOMAINLIST
+  rm $DOMAINLISTTEMP
+  rm *.*bak
+fi
 
-rm $DOMAINLISTTEMP
-rm *.*bak
 
 COUNTDOMAIN=$(wc -l < "$DOMAINLIST")
 
@@ -212,7 +248,6 @@ SITES=$DOMAINLIST
 if [ "$drupal" == 1 ] ; then
     SITEREVIEWVERSION=site_review
     HEALTHANALYSISVERSION=health_analysis_d8
-
 fi
 
 if [ "$drupal" == 2 ] ; then
@@ -221,6 +256,17 @@ if [ "$drupal" == 2 ] ; then
 
 fi
 
+if [ "$period" == 1 ] ; then
+  PERIODTIME=--reporting-period-start="-1 days"
+fi
+
+if [ "$period" == 2 ] ; then
+  PERIODTIME=--reporting-period-start="-7 days"
+fi
+
+if [ "$period" == 3 ] ; then
+  PERIODTIME=--reporting-period-start="-14 days"
+fi
 
 # generating the html site load analysis
 if [ "$loadanalysis" == 1 ] ; then
@@ -232,7 +278,7 @@ if [ "$loadanalysis" == 1 ] ; then
         mkdir "$load_analysis"
     fi
     cd $load_analysis
-    drutinycs profile:run load_analysis aht:@$sitename.$environment -f html --no-interaction --reporting-period-start="-7 days"
+    drutinycs profile:run load_analysis aht:@$sitename.$environment -f html --no-interaction $PERIODTIME
     cd ..
 fi
 
@@ -246,7 +292,7 @@ if [ "$healthanalysis" == 1 ] ; then
         mkdir "$HEALTHANALYSISVERSION"
     fi
     cd $HEALTHANALYSISVERSION
-    drutinycs profile:run $HEALTHANALYSISVERSION aht:@$sitename.$environment -f html --no-interaction --reporting-period-start="-7 days"
+    drutinycs profile:run $HEALTHANALYSISVERSION aht:@$sitename.$environment -f html --no-interaction $PERIODTIME
     cd ..
 fi
 
@@ -261,7 +307,7 @@ if [ "$trafficanalysis" == 1 ] ; then
     fi
     cd $traffic_analysis
 
-    drutinycs profile:run traffic_analysis aht:@$sitename.$environment -f html --no-interaction --reporting-period-start="-7 days"
+    drutinycs profile:run traffic_analysis aht:@$sitename.$environment -f html --no-interaction $PERIODTIME
     cd ..
 fi
 
@@ -276,7 +322,7 @@ if [ "$appanalysis" == 1 ] ; then
     fi
     cd $app_analysis
 
-    drutinycs profile:run app_analysis aht:@$sitename.$environment -f html --no-interaction --reporting-period-start="-7 days"
+    drutinycs profile:run app_analysis aht:@$sitename.$environment -f html --no-interaction $PERIODTIME
     cd ..
 fi
 
@@ -294,7 +340,7 @@ if [ "$format" == 1 ] ; then
         fi
         cd $SITEREVIEWVERSION
 
-        drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment --uri=$site -f html --no-interaction --reporting-period-start="-7 days"
+        drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment --uri=$site -f html --no-interaction $PERIODTIME
         COUNTREPORT=$((COUNTREPORT+1))
         cd ..
 
@@ -344,12 +390,12 @@ if [[ $format -eq 2 || $format -eq 3 ]] ; then
         # generating the html site review if user select both
         if [ "$format" == 3 ] ; then
             
-            drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment --uri=$site -f html --no-interaction --reporting-period-start="-7 days"
+            drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment --uri=$site -f html --no-interaction $PERIODTIME
             
         fi
 
         #Print the site name in the next column
-        sed -i bak "1s/$/;$site/" $REPORTCSV
+        sed -i bak "1s|$|;$site|" $REPORTCSV
 
         drutinycs profile:run $SITEREVIEWVERSION --no-interaction aht:@$sitename.$environment --uri=$site -f terminal > $TEMP
 
