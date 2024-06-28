@@ -248,11 +248,13 @@ SITES=$DOMAINLIST
 if [ "$drupal" == 1 ] ; then
     SITEREVIEWVERSION=site_review
     HEALTHANALYSISVERSION=health_analysis_d8
+    EXCLUDEPOLICY=--exclude-policy="Test:Drupal-8-or-later"
 fi
 
 if [ "$drupal" == 2 ] ; then
     SITEREVIEWVERSION=site_review_d7
     HEALTHANALYSISVERSION=health_analysis_d7
+    EXCLUDEPOLICY=""
 
 fi
 
@@ -340,7 +342,7 @@ if [ "$format" == 1 ] ; then
         fi
         cd $SITEREVIEWVERSION
 
-        drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment --uri=$site -f html --no-interaction $PERIODTIME
+        drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment $EXCLUDEPOLICY --uri=$site -f html --no-interaction $PERIODTIME
         COUNTREPORT=$((COUNTREPORT+1))
         cd ..
 
@@ -390,14 +392,14 @@ if [[ $format -eq 2 || $format -eq 3 ]] ; then
         # generating the html site review if user select both
         if [ "$format" == 3 ] ; then
             
-            drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment --uri=$site -f html --no-interaction $PERIODTIME
+            drutinycs profile:run $SITEREVIEWVERSION aht:@$sitename.$environment $EXCLUDEPOLICY --uri=$site -f html --no-interaction $PERIODTIME
             
         fi
 
         #Print the site name in the next column
         sed -i bak "1s|$|;$site|" $REPORTCSV
 
-        drutinycs profile:run $SITEREVIEWVERSION --no-interaction aht:@$sitename.$environment --uri=$site -f terminal > $TEMP
+        drutinycs profile:run $SITEREVIEWVERSION --no-interaction aht:@$sitename.$environment $EXCLUDEPOLICY --uri=$site -f terminal > $TEMP
 
         cat $TEMP | sed '/## Issues.*$/,$d' | sed '/Purpose/,/Issue Summary/d' | sed '/^-/d' | sed 's/[[:blank:]]\{2,\}//g' | sed -e 's/|/;/g' -e 's/ ;/;/g' -e 's/; /;/g' | awk -F ';' '{print $1";"$3}' | sed '1d; 2d' | sed -e :a -e '$d;N;1,3ba' -e 'P;D' > $REPORTCSVTMP
 
