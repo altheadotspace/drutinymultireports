@@ -30,6 +30,23 @@ To run this script, ensure the following software and conditions are met:
 - **Python Script**: `combine_summaries.py` should be located in the same directory as `multi_reporst.sh`.
 - **Permissions**: Appropriate permissions to create directories and files within the specified directories.
 
+## Initialization Steps
+
+The script begins by setting up an SSH environment and clearing the Drutiny cache:
+
+- **SSH Agent Initialization**: The script starts an SSH agent and adds keys from the macOS Keychain for secure access operations.
+
+  ```
+    eval $(ssh-agent)
+    ssh-add --apple-load-keychain
+  ```   
+
+- **Drutiny Cache Clearing**: It clears the Drutiny cache, including source cache, ensuring that reports are generated with the freshest data.
+
+  ```
+    drutinycs cache:clear --include-source-cache
+  ```  
+
 ## How the Script Generates Reports
 
 ### Directory Structure
