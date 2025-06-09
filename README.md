@@ -25,7 +25,7 @@ This script automates the process of running Drutiny reports for various analyse
 To run this script, ensure the following software and conditions are met:
 
 - **Bash**: Version 3.2 or higher.
-- **Drutiny**: Installed with permissions to run `drutinycs` commands.
+- **Drutiny**: Installed and accessible either as `drutinycs` or `drutiny`. The script checks both command names to determine which one is available on the system and uses it for executing Drutiny operations.
 - **Python 3**: Required for generating summary JSON files if `createjson` is enabled.
 - **Python Script**: `combine_summaries.py` should be located in the same directory as `multi_reporst.sh`.
 - **Permissions**: Appropriate permissions to create directories and files within the specified directories.
