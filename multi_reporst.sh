@@ -4,6 +4,15 @@
 # Drutiny Reporting Script (Bash 3.2 compatible)
 # =======================================================
 
+# --- Initialize SSH agent and add keys from Apple Keychain ---
+eval $(ssh-agent)
+
+ssh-add --apple-load-keychain
+
+# --- Clear Drutiny cache, including source cache ---
+drutinycs cache:clear --include-source-cache
+
+
 # --- Function: Print error message and exit ---
 error_exit() {
   echo -e "\033[0;31m[ERROR]\033[0m $1" >&2
