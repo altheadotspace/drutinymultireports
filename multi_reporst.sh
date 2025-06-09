@@ -4,13 +4,32 @@
 # Drutiny Reporting Script (Bash 3.2 compatible)
 # =======================================================
 
+
+# --- Determine Drutiny command ---
+get_drutiny_command() {
+  if command -v drutinycs &> /dev/null; then
+    DRUTINY_CMD="drutinycs"
+  elif command -v drutiny &> /dev/null; then
+    DRUTINY_CMD="drutiny"
+  else
+    error_exit "Drutiny command not found. Please ensure that Drutiny is installed and accessible."
+  fi
+}
+
+
+get_drutiny_command
+
+# Print the determined Drutiny command
+echo -e "\033[0;34m[INFO]\033[0m Using Drutiny command: ${DRUTINY_CMD}"
+
+
 # --- Initialize SSH agent and add keys from Apple Keychain ---
 eval $(ssh-agent)
 
 ssh-add --apple-load-keychain
 
 # --- Clear Drutiny cache, including source cache ---
-drutinycs cache:clear --include-source-cache
+${DRUTINY_CMD} cache:clear --include-source-cache
 
 
 # --- Function: Print error message and exit ---
@@ -94,10 +113,10 @@ run_drutiny_report() {
   mkdir -p "$folder"
   cd "$folder" || exit 1
 
-  drutinycs profile:run "$profile" aht:@${sitename}.${env} -f html --no-interaction "${PERIOD_ARGS[@]}"
+  ${DRUTINY_CMD} profile:run "$profile" aht:@${sitename}.${env} -f html --no-interaction "${PERIOD_ARGS[@]}"
 
   if [[ "$createjson" == 1 ]]; then
-    drutinycs profile:run "$profile" aht:@${sitename}.${env} -f json --no-interaction "${PERIOD_ARGS[@]}" > "${profile}.json"
+    ${DRUTINY_CMD} profile:run "$profile" aht:@${sitename}.${env} -f json --no-interaction "${PERIOD_ARGS[@]}" > "${profile}.json"
   fi
   cd - > /dev/null
 }
